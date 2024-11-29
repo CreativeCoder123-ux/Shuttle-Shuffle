@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shuttle Service with Car Tracking</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: white;
+            background: url("Logo and Website Name (ALTERNATE).jpg") no-repeat center center fixed;
+            background-size: 20px;
+        }
+        header {
+            background-color: rgba(0, 87, 0, 0.8);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+        nav {
+            background-color: rgba(0, 100, 0, 0.8);
+            padding: 10px;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        section {
+            padding: 20px;
+            background-color: rgba(0, 87, 0, 0.6);
+            border-radius: 10px;
+            margin: 20px;
+        }
+        #map {
+            height: 300px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        footer {
+            background-color: rgba(0, 51, 0, 0.8);
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            margin-top: 20px;
+        }
+
+        /* Customizing the logo */
+        .logo-container img {
+            width: 150px;  /* Resizing logo */
+            height: auto;  /* Maintain aspect ratio */
+            transition: transform 0.3s ease;  /* Smooth transition */
+        }
+
+        /* Hover effect for logo */
+        .logo-container img:hover {
+            transform: scale(1.1);  /* Slightly enlarge on hover */
+        }
+
+    </style>
+    <!-- Leaflet.js -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Welcome to Benilde Shuttle Shuffle</h1>
+        <p>Here na me, san kana</p>
+        <!-- Logo -->
+        <div class="logo-container">
+            <img src="Logo and Website Name (ALTERNATE).jpg" alt="Shuttle Shuffle Logo">
+        </div>
+    </header>
+    <nav>
+        <a href="#tracking">Track Your Ride</a>
+        <a href="#services">Services</a>
+        <a href="#about">About us</a>
+        <a href="#contact">Contact</a>
+    </nav>
+<section id="tracking">
+        <h2>Track Your Ride</h2>
+        <p id="eta">ETA: </p>
+        <div id="map"></div>
+
+    <section id="services">
+        <h2>Our Services</h2>
+        <ul>
+            <li>Taft Campus</li>
+            <li>Design & Arts</li>
+            <li>Akic</li>
+        </ul>
+    </section>
+    <section id="about">
+        <h2>About Us</h2>
+        <p>aims to help students and faculty members arrive on time ang give them a less hustle so we can create a more productive environment.</p>
+    </section>
+    <section id="tracking">
+        <h2>Track Your Ride</h2>
+        <p id="eta">ETA: </p>
+        <div id="map"></div>
+    </section>
+    <footer>
+        <p>&copy; 2024 Benilde Shuttle Shuffle. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        let map;
+        let carMarker;
+        let userLocation = { lat: 14.5995, lng: 120.9842 }; // Example: User in Manila
+        let carLocation = { lat: 14.6095, lng: 120.9982 }; // Example: Initial car location
+
+        function initMap() {
+            map = L.map('map').setView([userLocation.lat, userLocation.lng], 14);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            L.marker([userLocation.lat, userLocation.lng]).addTo(map)
+                .bindPopup("You")
+                .openPopup();
+
+            carMarker = L.marker([carLocation.lat, carLocation.lng]).addTo(map)
+                .bindPopup("Car")
+                .openPopup();
+
+            setInterval(updateCarLocation, 5000);
+        }
+
+        function updateCarLocation() {
+            carLocation.lat -= 0.0001;
+            carLocation.lng -= 0.0001;
+
+            carMarker.setLatLng([carLocation.lat, carLocation.lng]).bindPopup("Car").openPopup();
+            calculateETA();
+        }
+
+        function calculateETA() {
+            const R = 6371; 
+            const dLat = (userLocation.lat - carLocation.lat) * (Math.PI / 180);
+            const dLng = (userLocation.lng - carLocation.lng) * (Math.PI / 180);
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(carLocation.lat * (Math.PI / 180)) *
+                      Math.cos(userLocation.lat * (Math.PI / 180)) *
+                      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distance = R * c;
+
+            const averageSpeed = 40; 
+            const etaMinutes = Math.ceil((distance / averageSpeed) * 60);
+
+            document.getElementById("eta").innerText = `ETA: ${etaMinutes} minute(s)`; 
+        }
+
+        document.addEventListener("DOMContentLoaded", initMap);
+    </script>
+</body>
+</html>
